@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pixels Inventory Resale</title>
+    <link rel="stylesheet" href="styles.css">
+     <link rel="icon" href="favicon.png" type="image/png">
+</head>
+<body>
+
+<div class="container">
+    <h1>Pixels Inventory Resale</h1>
+
+    <form id="propertyForm" class="form-container">
+        <div class="form-group">
+            <label for="ownerName">Owner Name</label>
+            <input type="text" id="ownerName" class="form-control" placeholder="Enter owner name" required>
+        </div>
+
+        <div class="form-group">
+            <label for="ownerNumber">Owner Number</label>
+            <input type="text" id="ownerNumber" class="form-control" placeholder="Enter phone number" required>
+        </div>
+
+        <div class="form-group">
+            <label for="propertyType">Property Type</label>
+            <select id="propertyType" class="form-control" required>
+                <option value="">Select property type</option>
+                <option value="Apartment">Apartment</option>
+                <option value="Villa">Villa</option>
+                <option value="Land">Land</option>
+                <option value="Commercial">Commercial</option>
+            </select>
+        </div>
+
+        <div class="payment-type">
+            <label>
+                <input type="radio" name="paymentType" value="installment" checked onchange="togglePaymentFields()"> 
+                Installment
+            </label>
+            <label>
+                <input type="radio" name="paymentType" value="cash" onchange="togglePaymentFields()"> 
+                Cash
+            </label>
+        </div>
+
+        <div class="form-group">
+            <label for="totalPrice">Total Price</label>
+            <input type="text" id="totalPrice" class="form-control" placeholder="Enter total price" oninput="formatNumber(this)" required>
+        </div>
+
+        <div id="installmentFields">
+            <div class="installment-details">
+                <div class="form-group">
+                    <label for="downPayment">Downpayment</label>
+                    <input type="text" id="downPayment" class="form-control" placeholder="Enter amount" oninput="formatNumber(this)" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="monthlyInstallment">Monthly Installment</label>
+                    <input type="text" id="monthlyInstallment" class="form-control" placeholder="Enter amount" oninput="formatNumber(this)" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="installmentYears">Years</label>
+                    <select id="installmentYears" class="form-control" required>
+                        <option value="1">1 Year</option>
+                        <option value="1">2 Year</option>
+                        <option value="1">3 Year</option>
+                        <option value="1">4 Year</option>
+                        <option value="1">5 Year</option>
+                        <option value="1">6 Year</option>
+                        <option value="1">7 Year</option>
+                        <option value="1">8 Year</option>
+                        <option value="1">9 Year</option>
+                        <option value="1">10 Year</option>
+                        <option value="1">11 Year</option>
+                        <option value="1">12 Year</option>
+                        <option value="1">13 Year</option>
+                        <option value="1">14 Year</option>
+                        <option value="1">15 Year</option>
+                        <option value="1">16 Year</option>
+                        <option value="1">17 Year</option>
+                        <option value="1">18 Year</option>
+                        <option value="1">19 Year</option>
+                        <option value="1">20 Year</option>
+                      
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="overPrice">Over Price</label>
+                    <input type="text" id="overPrice" class="form-control" placeholder="Enter amount" oninput="formatNumber(this)" required>
+                </div>
+            </div>
+        </div>
+
+        <div class="file-upload-container">
+            <div class="file-upload-header">
+                <label>Property Images</label>
+                <button type="button" class="btn btn-sm btn-secondary" onclick="document.getElementById('imageAttachments').click()">
+                    Add Images
+                </button>
+            </div>
+            <input type="file" id="imageAttachments" class="file-input" accept="image/*" multiple>
+            <div id="imagePreview" class="file-preview"></div>
+        </div>
+
+        <div class="file-upload-container">
+            <div class="file-upload-header">
+                <label>Property Documents</label>
+                <button type="button" class="btn btn-sm btn-secondary" onclick="document.getElementById('pdfAttachments').click()">
+                    Add Documents
+                </button>
+            </div>
+            <input type="file" id="pdfAttachments" class="file-input" accept="application/pdf" multiple>
+            <div id="pdfPreview" class="file-preview"></div>
+        </div>
+
+        <button type="button" class="btn btn-primary" onclick="addProperty()">
+            Add Property
+        </button>
+    </form>
+
+    <div class="property-list" id="property-list"></div>
+</div>
+
+<!-- Details Modal -->
+<div class="modal" id="detailsModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">Property Details</h3>
+            <button class="close-btn" onclick="closeModal('detailsModal')">&times;</button>
+        </div>
+        <div class="modal-body" id="detailsContent"></div>
+        <div class="modal-footer">
+            <button class="btn btn-primary" onclick="closeModal('detailsModal')">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div class="modal" id="confirmModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">Confirm Action</h3>
+            <button class="close-btn" onclick="closeModal('confirmModal')">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p id="confirmMessage">Are you sure you want to delete this property?</p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal('confirmModal')">Cancel</button>
+            <button class="btn btn-danger" onclick="confirmDelete()">Delete</button>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal" id="editModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">Edit Property</h3>
+            <button class="close-btn" onclick="closeModal('editModal')">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form id="editForm" class="form-container">
+                <div class="form-group">
+                    <label for="editOwnerName">Owner Name</label>
+                    <input type="text" id="editOwnerName" class="form-control" placeholder="Enter owner name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="editOwnerNumber">Owner Number</label>
+                    <input type="text" id="editOwnerNumber" class="form-control" placeholder="Enter phone number" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="editPropertyType">Property Type</label>
+                    <select id="editPropertyType" class="form-control" required>
+                        <option value="">Select property type</option>
+                        <option value="Apartment">Apartment</option>
+                        <option value="Villa">Villa</option>
+                        <option value="Land">Land</option>
+                        <option value="Commercial">Commercial</option>
+                    </select>
+                </div>
+
+                <div class="payment-type">
+                    <label>
+                        <input type="radio" name="editPaymentType" value="installment" checked onchange="toggleEditPaymentFields()"> 
+                        Installment
+                    </label>
+                    <label>
+                        <input type="radio" name="editPaymentType" value="cash" onchange="toggleEditPaymentFields()"> 
+                        Cash
+                    </label>
+                </div>
+
+                <div class="form-group">
+                    <label for="editTotalPrice">Total Price</label>
+                    <input type="text" id="editTotalPrice" class="form-control" placeholder="Enter total price" oninput="formatNumber(this)" required>
+                </div>
+
+                <div id="editInstallmentFields">
+                    <div class="installment-details">
+                        <div class="form-group">
+                            <label for="editDownPayment">Downpayment</label>
+                            <input type="text" id="editDownPayment" class="form-control" placeholder="Enter amount" oninput="formatNumber(this)">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="editMonthlyInstallment">Monthly Installment</label>
+                            <input type="text" id="editMonthlyInstallment" class="form-control" placeholder="Enter amount" oninput="formatNumber(this)">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="editInstallmentYears">Years</label>
+                            <select id="editInstallmentYears" class="form-control">
+                                <option value="1">1 Year</option>
+                                <option value="2">2 Years</option>
+                                <option value="3">3 Years</option>
+                                <option value="5">5 Years</option>
+                                <option value="7">7 Years</option>
+                                <option value="10">10 Years</option>
+                                <option value="15">15 Years</option>
+                                <option value="20">20 Years</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="editOverPrice">Over Price</label>
+                            <input type="text" id="editOverPrice" class="form-control" placeholder="Enter amount" oninput="formatNumber(this)">
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal('editModal')">Cancel</button>
+            <button class="btn btn-primary" onclick="saveEditedProperty()">Save Changes</button>
+        </div>
+    </div>
+</div>
+
+
+<footer style="margin-top: 10px;">
+    <h1>Developed By Ziad El Warraqi</h1>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
